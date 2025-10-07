@@ -1,4 +1,4 @@
-/* --- Código gerado em: 2025-10-07 15:41 --- */
+/* --- Código gerado em: 2025-10-07 16:06 --- */
 
 document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LÓGICA DO CLIMA (API REAL) ---
-    const API_KEY = 'c4a8f46840ca4bafa091a3fd7226ddfb';
+    const API_KEY = '8bcdcb31411d73a09bac44af8ccceda6'; // ### CHAVE CORRIGIDA ###
     const LAT = '-23.78';
     const LON = '-45.36';
     const weatherWidget = document.getElementById('weather-widget');
@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function fetchWeather() {
+        // Nota: A Weatherbit às vezes usa um endpoint diferente para chaves gratuitas. Se este falhar, pode ser necessário ajustar a URL.
         const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${LAT}&lon=${LON}&key=${API_KEY}&lang=pt&days=16`;
         try {
             const response = await fetch(url);
@@ -79,9 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch (error) {
             console.error("Falha ao buscar clima:", error);
-            weatherWidget.innerHTML = '<p class="dica">Não foi possível carregar a previsão do tempo. Tente recarregar a página.</p>';
+            weatherWidget.innerHTML = '<p class="dica">Não foi possível carregar a previsão do tempo. Verifique sua chave API e conexão.</p>';
         }
     }
+    
     fetchWeather();
 
 
@@ -167,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addNewItemBtn.addEventListener('click', () => {
         const text = newItemInput.value.trim();
         if (text) {
-            const newItem = createChecklistItem(text); // Personalizado é sempre para 2
+            const newItem = createChecklistItem(text);
             outrosSection.querySelector('.checklist').appendChild(newItem);
             newItemInput.value = '';
             outrosSection.style.display = 'block';
@@ -219,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     saveBtn.addEventListener('click', () => {
         const appData = { checklists: {}, budget: {}, activities: {}, notes: '', uploadedImages: {} };
         
-        // Salvar checklists
         document.querySelectorAll('section[data-checklist-id]').forEach(section => {
             const sectionId = section.dataset.checklistId;
             appData.checklists[sectionId] = Array.from(section.querySelectorAll('li')).map(item => ({
@@ -232,10 +233,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
         });
         
-        // Salvar orçamento
         gastoInputs.forEach(input => appData.budget[input.id] = input.value);
         
-        // Salvar atividades
         document.querySelectorAll('.activity-item').forEach(item => {
             const activityId = item.dataset.activityId;
             if (activityId) {
@@ -246,10 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Salvar anotações
         appData.notes = userNotes.value;
 
-        // Salvar imagens do localStorage
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
             if (key.startsWith('uploaded_image_')) {
@@ -264,12 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadProgress() {
         const savedData = JSON.parse(localStorage.getItem('ilhabelaAppData'));
         if (!savedData) {
-            populateChecklists(); // Popula com o padrão se não houver dados salvos
+            populateChecklists();
             showToast('Nenhum progresso salvo encontrado. Começando um novo guia!', 'info');
             return;
         }
 
-        // Carregar imagens primeiro
         if (savedData.uploadedImages) {
             for (const key in savedData.uploadedImages) {
                 localStorage.setItem(key, savedData.uploadedImages[key]);
@@ -277,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUploadedIcons();
         }
         
-        // Carregar checklists
         if (savedData.checklists) {
             ['pessoal', 'veiculo', 'outros'].forEach(id => {
                 const section = document.querySelector(`section[data-checklist-id="${id}"]`);
@@ -296,16 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateChecklistCounter(section);
             });
         } else {
-             populateChecklists(); // Popula padrão se não houver checklist salvo
+             populateChecklists();
         }
 
-        // Carregar orçamento
         if (savedData.budget) {
             gastoInputs.forEach(input => { input.value = savedData.budget[input.id] || ''; });
             calculateBudget();
         }
         
-        // Carregar atividades
         if (savedData.activities) {
             document.querySelectorAll('.activity-item').forEach(item => {
                 const activityId = item.dataset.activityId;
@@ -317,14 +310,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Carregar anotações
         userNotes.value = savedData.notes || '';
         showToast('Progresso carregado!', 'info');
     }
     
     clearBtn.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja limpar tudo? Isso removerá todos os dados, incluindo fotos enviadas.')) {
-            const theme = localStorage.getItem('theme'); // Preserva o tema
+            const theme = localStorage.getItem('theme');
             localStorage.clear();
             if (theme) localStorage.setItem('theme', theme);
             location.reload();
@@ -352,18 +344,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // ### FUNÇÃO MODIFICADA ###
     function generateRoteiro(activities) {
         if (activities.length === 0) {
             showToast('Nenhuma atividade selecionada para o roteiro.', 'error');
             return null;
         }
-        // Alterado para 3 dias
         const roteiro = { domingo: [], segunda: [], terca: [] };
         const days = ['domingo', 'segunda', 'terca'];
         
         activities.forEach((activity, index) => {
-            // Alterado para distribuir em 3 dias
             roteiro[days[index % 3]].push(activity);
         });
 
@@ -383,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return html;
         }
-        // Alterado para renderizar apenas 3 dias
         roteiroOutput.innerHTML = `
             <div class="roteiro-dia"><h4>Domingo</h4>${generateDayHtml(roteiro.domingo)}</div>
             <div class="roteiro-dia"><h4>Segunda</h4>${generateDayHtml(roteiro.segunda)}</div>
@@ -398,13 +386,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.getElementById('btn-suggest-roteiro').addEventListener('click', () => {
-        const suggested = ['Praia do Julião (Sul)', 'Passeio na Vila (Centro)', 'Cachoeira dos Três Tombos (Sul)', 'Pôr do Sol no Mirante do Piúva'];
+        // ### SUGESTÃO DE ROTEIRO ATUALIZADA PARA 7 OPÇÕES ###
+        const suggested = [
+            'Praia do Julião (Sul)',
+            'Cachoeira dos Três Tombos (Sul)',
+            'Passeio na Vila (Centro)',
+            'Mirante do Coração (Sul)',
+            'Praia do Perequê (Centro)',
+            'Mergulho Ilha das Cabras (Sul)',
+            'Pôr do Sol no Mirante do Piúva'
+        ];
         
         document.querySelectorAll('.activity-item input').forEach(input => {
              input.checked = suggested.includes(input.value);
         });
         generateRoteiro(suggested);
-        showToast('Um roteiro foi sugerido para você!', 'info');
+        showToast('Um roteiro com 7 atividades foi sugerido para você!', 'info');
     });
     
     document.getElementById('btn-share-roteiro').addEventListener('click', () => {
