@@ -1,0 +1,23 @@
+{
+    "name": "Guia de Viagem Ilhabela",
+    "short_name": "Guia Ilhabela",
+    "description": "Seu guia de planejamento completo para uma viagem a Ilhabela.",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0077b6",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "https://placehold.co/192x192/0077b6/FFF?text=Guia",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "https://placehold.co/512x512/0077b6/FFF?text=Guia",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
+
