@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia PWA de Viagem: Ilhabela</title>
+    <!-- 
+        Código gerado em: 2025-10-07 13:23 
+        Nota: Para testar as funcionalidades PWA (instalação, offline), 
+        este arquivo precisa ser servido por um servidor local (ex: Live Server no VS Code), 
+        não aberto diretamente do sistema de arquivos (file://).
+    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        /* --- GERAL E ANIMAÇÕES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+        :root {
+            --primary-color: #0077b6; --secondary-color: #00b4d8; --background-color: #f4f4f9;
+            --text-color: #333; --light-gray: #e9ecef; --dark-gray: #6c757d; --card-bg: #ffffff;
+            --success-color: #28a745; --danger-color: #dc3545; --warning-color: #ffc107; --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        .dark-mode {
+            --primary-color: #00b4d8; --secondary-color: #90e0ef; --background-color: #121212;
+            --text-color: #e0e0e0; --light-gray: #2c2c2c; --dark-gray: #a0a0a0; --card-bg: #1e1e1e;
+            --shadow-color: rgba(255,255,255,0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif; margin: 0; padding: 0;
+            background-color: var(--background-color); color: var(--text-color); line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container { max-width: 900px; margin: 10px; padding: 15px; background-color: var(--card-bg); box-shadow: 0 4px 12px var(--shadow-color); border-radius: 10px; transition: background-color 0.3s; }
+        @media (min-width: 940px) { .container { margin: 20px auto; padding: 20px; } }
+
+        h1, h2, h3, h4, h5 { color: var(--primary-color); }
+        h1 { font-size: 1.8em; text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; }
+        h2 { font-size: 1.4em; border-left: 4px solid var(--secondary-color); padding-left: 10px; margin-top: 30px; display: flex; align-items: center; }
+        h2 i { margin-right: 10px; }
+        h3 { font-size: 1.2em; color: var(--secondary-color); margin-top: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .checklist-counter { font-size: 0.8em; font-weight: normal; color: var(--dark-gray); }
+
+        .dica { background-color: #eefcff; border-left: 5px solid var(--secondary-color); padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .dark-mode .dica { background-color: #0d3b4a; }
+        .borrachudo-dica { background-color: #fffbe6; border-left-color: var(--warning-color); }
+        .dark-mode .borrachudo-dica { background-color: #574b1e; }
+
+        /* --- CONTROLES GLOBAIS --- */
+        .global-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--light-gray); border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .control-group { display: flex; flex-wrap: wrap; gap: 10px; flex-grow: 1; }
+        .global-controls button, .theme-toggle, .btn-small { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.2s, transform 0.2s; flex: 1; min-width: 40px; }
+        .btn-save { background-color: var(--success-color); color: white; }
+        .btn-load { background-color: var(--primary-color); color: white; }
+        .btn-clear { background-color: var(--danger-color); color: white; }
+        .btn-pdf { background-color: #6f42c1; color: white; }
+        .global-controls button:hover { transform: translateY(-2px); }
+        .theme-toggle { background: none; font-size: 1.5em; color: var(--primary-color); flex: 0; }
+        
+        /* --- SEÇÕES RETRÁTEIS --- */
+        details { background: var(--light-gray); border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; }
+        .dark-mode details { border-color: #444; }
+        summary { font-size: 1.3em; font-weight: bold; color: var(--primary-color); padding: 15px 20px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+        summary i { margin-right: 15px; }
+        summary::-webkit-details-marker { display: none; }
+        .details-content { padding: 0 20px 20px 20px; }
+        #outros-checklist-section { display: none; }
+
+        /* --- CHECKLISTS DUPLOS --- */
+        .checklist { list-style-type: none; padding-left: 0; }
+        .checklist li { padding: 12px 15px; margin-bottom: 8px; background-color: #f8f9fa; border-radius: 5px; transition: all 0.2s ease-in-out; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
+        .dark-mode .checklist li { background-color: #333; border-color: #555; }
+        .checklist-text { flex-grow: 1; padding-right: 10px; }
+        .checklist-boxes { display: flex; gap: 15px; }
+        .checklist-box { cursor: pointer; font-size: 1.2em; color: var(--primary-color); position: relative; }
+        .checklist-box::before { content: '☐'; }
+        .checklist-box.completed::before { content: '☑'; color: var(--success-color); }
+        .checklist-box-label { font-size: 0.7em; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); color: var(--dark-gray); }
+
+        .add-item-form { display: flex; gap: 10px; margin-top: 15px; }
+        .add-item-form input { flex-grow: 1; padding: 8px 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .add-item-form button { padding: 8px 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.2em; }
+        
+        /* --- CALCULADORA DE ORÇAMENTO --- */
+        .budget-section { padding: 15px; border: 1px solid var(--secondary-color); border-radius: 8px; margin-bottom: 20px; }
+        .budget-day { margin-bottom: 20px; border-top: 1px solid #ccc; padding-top: 15px; }
+        .budget-day h5, .budget-section h4 { margin: 0 0 10px 0; color: var(--secondary-color); }
+        .budget-input-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .budget-input-group > div { flex: 1; min-width: 120px; }
+        .budget-input-group label { font-weight: normal; font-size: 0.9em; }
+        .budget-input-group input { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 5px; border: 1px solid #ccc; background-color: var(--card-bg); color: var(--text-color); }
+        .budget-subtotal { text-align: right; font-weight: bold; margin-top: 10px; }
+        .budget-total { margin-top: 20px; font-size: 1.2em; font-weight: bold; text-align: center; padding: 15px; border-top: 2px solid var(--primary-color); }
+        #total-spent, #total-fixed-costs, #grand-total-cost { color: var(--primary-color); }
+        #budget-status { font-style: italic; font-size: 0.8em; display: block; }
+        .btn-small { padding: 8px 12px; font-size: 0.9em; }
+
+        /* --- ROTEIRO INTERATIVO --- */
+        .activity-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .filter-btn { padding: 8px 15px; border: 1px solid var(--primary-color); color: var(--primary-color); background-color: transparent; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+        .filter-btn.active { background-color: var(--primary-color); color: white; }
+        .activity-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; margin-top: 15px; }
+        .activity-item { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); padding: 10px; border-radius: 5px; border: 1px solid #ddd; animation: fadeIn 0.5s; }
+        .dark-mode .activity-item { background-color: #333; border-color: #555; }
+        .activity-item.hidden { display: none; }
+        .activity-label { display: flex; align-items: center; flex-grow: 1; }
+        .activity-label input { margin-right: 10px; }
+        .activity-icons i { cursor: pointer; margin-left: 10px; color: var(--dark-gray); transition: color 0.2s, transform 0.2s; }
+        .activity-icons i:hover { transform: scale(1.2); }
+        .activity-icons i.favorited { color: var(--warning-color); }
+        #btn-generate-roteiro, #btn-suggest-roteiro, #btn-share-roteiro { display: block; width: 100%; padding: 15px; font-size: 1.2em; margin: 10px 0; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #btn-generate-roteiro { background-color: var(--success-color); }
+        #btn-suggest-roteiro { background-color: var(--warning-color); color: #333; }
+        #btn-share-roteiro { background-color: #25D366; }
+        .roteiro-gerado { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .roteiro-dia { background-color: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--light-gray); animation: fadeIn 0.5s ease-in-out; }
+        .roteiro-dia h4 { margin-top: 0; color: var(--primary-color); border-bottom: 1px solid var(--secondary-color); padding-bottom: 5px; }
+        .roteiro-dia h5 { color: var(--secondary-color); margin: 10px 0 5px 0; }
+        .roteiro-dia ul { padding-left: 20px; margin: 0; }
+
+        /* --- OUTRAS SEÇÕES --- */
+        #map-container { position: relative; padding-bottom: 75%; height: 0; overflow: hidden; }
+        #map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; }
+        .map-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .map-link-btn { background-color: var(--primary-color); color: white; text-decoration: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; }
+        .weather-widget { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
+        .weather-day { background-color: var(--card-bg); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--light-gray); }
+        .weather-day i { font-size: 2.5em; color: var(--warning-color); margin-bottom: 10px; }
+        .hourly-forecast { display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }
+        .hourly-forecast p { margin: 5px 0; font-size: 0.9em; }
+        .weather-day.expanded .hourly-forecast { display: block; }
+        .expand-weather { cursor: pointer; color: var(--secondary-color); font-size: 0.8em; margin-top: 10px; }
+        #user-notes { width: 100%; height: 150px; box-sizing: border-box; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background-color: var(--card-bg); color: var(--text-color); margin-top: 10px; }
+        .balsa-status { text-align: center; }
+        .btn-balsa { display: inline-block; padding: 12px 25px; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
+        .restaurant-card { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .restaurant-card p { margin: 5px 0; }
+
+        /* --- MODAL DA GALERIA --- */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); animation: fadeIn 0.3s; }
+        .modal-content { margin: auto; display: block; width: 80%; max-width: 700px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .close-modal { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; }
+        #caption { text-align: center; color: #ccc; padding: 10px 0; }
+        
+        /* --- TOAST NOTIFICATIONS --- */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .toast { padding: 15px 20px; margin-bottom: 10px; border-radius: 5px; color: white; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.2); animation: toastIn 0.5s, toastOut 0.5s 4.5s forwards; }
+        .toast.success { background-color: var(--success-color); }
+        .toast.error { background-color: var(--danger-color); }
+        .toast.info { background-color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div class="container" id="export-container">
+        
+        <div class="global-controls">
+            <div class="control-group">
+                <button class="btn-save" id="save-progress" title="Salvar"><i class="fas fa-save"></i></button>
+                <button class="btn-load" id="load-progress" title="Carregar"><i class="fas fa-upload"></i></button>
+                <button class="btn-clear" id="clear-progress" title="Limpar"><i class="fas fa-trash"></i></button>
+                <button class="btn-pdf" id="export-pdf" title="Exportar PDF"><i class="fas fa-file-pdf"></i></button>
+            </div>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema"><i class="fas fa-moon"></i></button>
+        </div>
+
+        <h1>Guia Premium: Ilhabela</h1>
+
+        <!-- SEÇÕES PRINCIPAIS -->
+        <details>
+            <summary><i class="fa-solid fa-calculator"></i>Calculadora de Orçamento</summary>
+            <div class="details-content" id="budget-calculator">
+                 <div class="budget-section">
+                     <h4>Gastos Fixos da Viagem</h4>
+                     <div class="budget-input-group">
+                         <div><label for="gasto-pousada">Pousada (R$):</label><input type="number" id="gasto-pousada" class="gasto-input fixed-cost" placeholder="0.00"></div>
+                         <div><label for="gasto-gasolina">Gasolina (R$):</label><input type="number" id="gasto-gasolina" class="gasto-input fixed-cost" placeholder="0.00"></div>
+                         <div><label for="gasto-pedagio">Pedágios (R$):</label><input type="number" id="gasto-pedagio" class="gasto-input fixed-cost" placeholder="0.00"></div>
+                     </div>
+                 </div>
+                 <div class="budget-section">
+                     <h4>Gastos Diários (Meta: R$ 200/dia)</h4>
+                     <div class="budget-day"><h5>Domingo</h5><div class="budget-input-group"><div><label for="gasto-domingo-refeicao">Refeições:</label><input type="number" id="gasto-domingo-refeicao" class="gasto-input daily-cost" data-day="domingo" placeholder="0.00"></div><div><label for="gasto-domingo-lazer">Lazer:</label><input type="number" id="gasto-domingo-lazer" class="gasto-input daily-cost" data-day="domingo" placeholder="0.00"></div><div><label for="gasto-domingo-outros">Outros:</label><input type="number" id="gasto-domingo-outros" class="gasto-input daily-cost" data-day="domingo" placeholder="0.00"></div></div><p class="budget-subtotal">Subtotal Domingo: R$ <span id="subtotal-domingo">0.00</span></p></div>
+                     <div class="budget-day"><h5>Segunda</h5><div class="budget-input-group"><div><label for="gasto-segunda-refeicao">Refeições:</label><input type="number" id="gasto-segunda-refeicao" class="gasto-input daily-cost" data-day="segunda" placeholder="0.00"></div><div><label for="gasto-segunda-lazer">Lazer:</label><input type="number" id="gasto-segunda-lazer" class="gasto-input daily-cost" data-day="segunda" placeholder="0.00"></div><div><label for="gasto-segunda-outros">Outros:</label><input type="number" id="gasto-segunda-outros" class="gasto-input daily-cost" data-day="segunda" placeholder="0.00"></div></div><p class="budget-subtotal">Subtotal Segunda: R$ <span id="subtotal-segunda">0.00</span></p></div>
+                     <div class="budget-day"><h5>Terça</h5><div class="budget-input-group"><div><label for="gasto-terca-refeicao">Refeições:</label><input type="number" id="gasto-terca-refeicao" class="gasto-input daily-cost" data-day="terca" placeholder="0.00"></div><div><label for="gasto-terca-lazer">Lazer:</label><input type="number" id="gasto-terca-lazer" class="gasto-input daily-cost" data-day="terca" placeholder="0.00"></div><div><label for="gasto-terca-outros">Outros:</label><input type="number" id="gasto-terca-outros" class="gasto-input daily-cost" data-day="terca" placeholder="0.00"></div></div><p class="budget-subtotal">Subtotal Terça: R$ <span id="subtotal-terca">0.00</span></p></div>
+                 </div>
+                 <div class="budget-total">
+                    <p>Total Gastos Diários: R$ <span id="total-spent">0.00</span> <span id="budget-status"></span></p>
+                    <p>Total Gastos Fixos: R$ <span id="total-fixed-costs">0.00</span></p>
+                    <p><strong>Custo Total da Viagem: R$ <span id="grand-total-cost">0.00</span></strong></p>
+                    <button id="save-budget-btn" class="btn-save btn-small" style="margin-top: 10px;"><i class="fas fa-save"></i> Salvar Gastos</button>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-cloud-sun-rain"></i>Previsão do Tempo (Simulado)</summary>
+            <div class="details-content weather-widget">
+                <div class="weather-day" data-weather="sol"><h4>Domingo</h4><i class="fas fa-sun"></i><p class="weather-temp">28°C / 21°C</p><p>Sol com poucas nuvens</p><div class="expand-weather">Ver detalhes <span>&darr;</span></div><div class="hourly-forecast"><p>09:00: 22°C</p><p>12:00: 26°C</p><p>15:00: 28°C</p><p>18:00: 25°C</p></div></div>
+                <div class="weather-day" data-weather="nublado"><h4>Segunda</h4><i class="fas fa-cloud-sun"></i><p class="weather-temp">27°C / 22°C</p><p>Parcialmente Nublado</p><div class="expand-weather">Ver detalhes <span>&darr;</span></div><div class="hourly-forecast"><p>09:00: 23°C</p><p>12:00: 27°C</p><p>15:00: 26°C</p><p>18:00: 24°C</p></div></div>
+                <div class="weather-day" data-weather="chuva"><h4>Terça</h4><i class="fas fa-cloud-showers-heavy"></i><p class="weather-temp">25°C / 20°C</p><p>Pancadas de chuva</p><div class="expand-weather">Ver detalhes <span>&darr;</span></div><div class="hourly-forecast"><p>09:00: 21°C</p><p>12:00: 24°C</p><p>15:00: 22°C</p><p>18:00: 21°C</p></div></div>
+            </div>
+        </details>
+        
+        <details>
+            <summary><i class="fa-solid fa-ship"></i>Status da Balsa</summary>
+            <div class="details-content balsa-status">
+                <p>Evite filas! Verifique a situação da travessia em tempo real antes de sair.</p>
+                <a href="https://www.ilhabela.com.br/balsa/" target="_blank" class="btn-balsa"><i class="fas fa-video"></i> Ver Câmeras e Tempo de Espera</a>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-mosquito"></i>SOS Borrachudos</summary>
+            <div class="details-content">
+                <div class="dica borrachudo-dica">
+                    <p><strong>Essencial:</strong> Use repelentes à base de <strong>Icaridina</strong> (Exposis, etc.). São os mais eficazes. Reaplique a cada 4 horas ou sempre que sair da água.</p>
+                    <p><strong>Horários Críticos:</strong> O ataque é mais intenso no início da manhã (até 9h) e no final da tarde (a partir das 16h).</p>
+                    <p><strong>Dica Extra:</strong> Óleo corporal (amêndoas, infantil) após o banho cria uma barreira física que dificulta a picada. Passe o repelente por cima do óleo já seco.</p>
+                    <p><strong>Roupas:</strong> Prefira roupas claras e compridas (calças, camisas de manga) durante os horários críticos, principalmente perto de matas e cachoeiras.</p>
+                    <p><strong>Se for picado:</strong> Não coce! Lave com água e sabão e use uma pomada antialérgica para aliviar.</p>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-map-location-dot"></i>Mapa Interativo</summary>
+            <div class="details-content">
+                <div id="map-container">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d58548.55383180556!2d-45.41918342159659!3d-23.82117565860361!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94d2938e3a245571%3A0x808383505c2d3a3!2sIlhabela%2C%20SP!5e0!3m2!1spt-BR!2sbr!4v1728271536717!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <h3>Abrir local no Google Maps:</h3>
+                <div class="map-links">
+                    <a href="https://www.google.com/maps/search/?api=1&query=Vila,Ilhabela,SP" target="_blank" class="map-link-btn">Vila</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+do+Julião,Ilhabela,SP" target="_blank" class="map-link-btn">Praia do Julião</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+do+Curral,Ilhabela,SP" target="_blank" class="map-link-btn">Praia do Curral</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Mirante+do+Piúva,Ilhabela,SP" target="_blank" class="map-link-btn">Mirante do Piúva</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+da+Feiticeira,Ilhabela,SP" target="_blank" class="map-link-btn">Praia da Feiticeira</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+do+Perequê,Ilhabela,SP" target="_blank" class="map-link-btn">Praia do Perequê</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+do+Jabaquara,Ilhabela,SP" target="_blank" class="map-link-btn">Praia do Jabaquara</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Cachoeira+dos+Três+Tombos,Ilhabela,SP" target="_blank" class="map-link-btn">Cachoeira Três Tombos</a>
+                </div>
+            </div>
+        </details>
+        
+        <details>
+            <summary><i class="fa-solid fa-list-check"></i>Montar Roteiro Personalizado</summary>
+            <div class="details-content">
+                <h2>Selecione as atividades de interesse:</h2>
+                <div class="activity-filters">
+                    <button class="filter-btn active" data-filter="all">Todas</button>
+                    <button class="filter-btn" data-filter="favorite"><i class="fas fa-star"></i> Favoritas</button>
+                    <button class="filter-btn" data-filter="Praia">Praias</button>
+                    <button class="filter-btn" data-filter="Cachoeira">Cachoeiras</button>
+                    <button class="filter-btn" data-filter="Pago">Pagas</button>
+                    <button class="filter-btn" data-filter="Gratis">Grátis</button>
+                </div>
+                <div class="activity-selector" id="activity-selector">
+                    <div class="activity-item" data-category="Praia Gratis Sul Romantico Relax"><label class="activity-label"><input type="checkbox" value="Praia do Julião (Sul)"> Praia do Julião (Sul)</label><span class="activity-icons"><i class="fas fa-camera gallery-trigger" data-img-url="https://placehold.co/800x600/00b4d8/FFF?text=Praia+do+Julião" data-caption="Praia do Julião"></i><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Praia Gratis Sul Aventura"><label class="activity-label"><input type="checkbox" value="Praia do Curral (Sul)"> Praia do Curral (Sul)</label><span class="activity-icons"><i class="fas fa-camera gallery-trigger" data-img-url="https://placehold.co/800x600/0077b6/FFF?text=Praia+do+Curral" data-caption="Praia do Curral"></i><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Praia Gratis Sul Relax"><label class="activity-label"><input type="checkbox" value="Praia da Feiticeira (Sul)"> Praia da Feiticeira (Sul)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Gratis Centro Romantico"><label class="activity-label"><input type="checkbox" value="Passeio na Vila (Centro)"> Passeio na Vila (Centro)</label><span class="activity-icons"><i class="fas fa-camera gallery-trigger" data-img-url="https://placehold.co/800x600/6f42c1/FFF?text=Vila+Histórica" data-caption="Vila Histórica"></i><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Praia Gratis Centro"><label class="activity-label"><input type="checkbox" value="Praia do Perequê (Centro)"> Praia do Perequê (Centro)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Pago Centro Aventura"><label class="activity-label"><input type="checkbox" value="Alugar Bike na Ciclovia (Centro)"> Alugar Bike na Ciclovia (Centro)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Praia Gratis Norte Relax"><label class="activity-label"><input type="checkbox" value="Praia da Armação (Norte)"> Praia da Armação (Norte)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Praia Gratis Norte Aventura"><label class="activity-label"><input type="checkbox" value="Praia do Jabaquara (Norte)"> Praia do Jabaquara (Norte)</label><span class="activity-icons"><i class="fas fa-camera gallery-trigger" data-img-url="https://placehold.co/800x600/28a745/FFF?text=Praia+do+Jabaquara" data-caption="Praia do Jabaquara"></i><i class="fas fa-star favorite-trigger"></i></span></div>
+                     <div class="activity-item" data-category="Praia Gratis Norte Relax"><label class="activity-label"><input type="checkbox" value="Praia da Pacuíba (Norte)"> Praia da Pacuíba (Norte)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                     <div class="activity-item" data-category="Praia Gratis Sul Relax"><label class="activity-label"><input type="checkbox" value="Praia do Veloso (Sul)"> Praia do Veloso (Sul)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Cachoeira Gratis Sul Aventura"><label class="activity-label"><input type="checkbox" value="Cachoeira dos Três Tombos (Sul)"> Cachoeira Três Tombos (Sul)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Cachoeira Pago Centro"><label class="activity-label"><input type="checkbox" value="Cachoeira da Toca (Centro)"> Cachoeira da Toca (Centro)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Cachoeira Gratis Sul Aventura Romantico"><label class="activity-label"><input type="checkbox" value="Cachoeira do Paquetá (Sul)"> Cachoeira do Paquetá (Sul)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Gratis Sul Romantico"><label class="activity-label"><input type="checkbox" value="Pôr do Sol no Mirante do Piúva (Sul)"> Pôr do Sol no Mirante (Sul)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Gratis Sul"><label class="activity-label"><input type="checkbox" value="Visitar Mirante do Barreiro (Sul)"> Visitar Mirante do Barreiro (Sul)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Outros Gratis Romantico Relax"><label class="activity-label"><input type="checkbox" value="Piquenique na Praia (Outros)"> Piquenique na Praia (Outros)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Pago Aventura"><label class="activity-label"><input type="checkbox" value="Passeio de Barco (Pago)"> Passeio de Barco (Pago)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Pago Sul Aventura"><label class="activity-label"><input type="checkbox" value="Mergulho na Ilha das Cabras (Pago)"> Mergulho (Pago)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Pago Aventura"><label class="activity-label"><input type="checkbox" value="Jipe para Castelhanos (Pago)"> Jipe para Castelhanos (Pago)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                    <div class="activity-item" data-category="Passeio Pago Centro Romantico"><label class="activity-label"><input type="checkbox" value="Jantar Romântico na Vila (Pago)"> Jantar na Vila (Pago)</label><span class="activity-icons"><i class="fas fa-star favorite-trigger"></i></span></div>
+                </div>
+                <button id="btn-suggest-roteiro"><i class="fas fa-magic"></i> Sugerir Roteiro para Hoje!</button>
+                <button id="btn-generate-roteiro">Montar Meu Roteiro!</button>
+                <div id="roteiro-container">
+                     <h2>Seu Roteiro Personalizado</h2>
+                     <div class="roteiro-gerado" id="roteiro-output"><p class="dica">Selecione suas atividades preferidas e clique em um dos botões acima para gerar um roteiro exclusivo!</p></div>
+                     <button id="btn-share-roteiro" style="display: none;"><i class="fab fa-whatsapp"></i> Compartilhar Roteiro</button>
+                </div>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-utensils"></i>Dicas Gastronômicas</summary>
+            <div class="details-content">
+                <div class="restaurant-card"><h4>Píer Pizza (Vila)</h4><p><strong>Especialidade:</strong> Pizzas de fermentação natural com vista para o mar.</p><p><strong>Faixa de Preço:</strong> $$ (Médio)</p></div>
+                <div class="restaurant-card"><h4>Restaurante do Cura (Praia do Veloso)</h4><p><strong>Especialidade:</strong> Frutos do mar frescos em um ambiente "pé na areia" autêntico.</p><p><strong>Faixa de Preço:</strong> $$$ (Alto)</p></div>
+                 <div class="restaurant-card"><h4>Viana Praia (Praia do Viana)</h4><p><strong>Especialidade:</strong> Cozinha contemporânea e drinks em um ambiente sofisticado.</p><p><strong>Faixa de Preço:</strong> $$$ (Alto)</p></div>
+                <div class="restaurant-card"><h4>Borrachudo Sanduíches (Perequê)</h4><p><strong>Especialidade:</strong> Hambúrgueres artesanais e lanches rápidos.</p><p><strong>Faixa de Preço:</strong> $ (Baixo)</p></div>
+                <div class="restaurant-card"><h4>Creperia N'Areia (Vila)</h4><p><strong>Especialidade:</strong> Crepes doces e salgados em um ambiente descontraído.</p><p><strong>Faixa de Preço:</strong> $$ (Médio)</p></div>
+                 <div class="restaurant-card"><h4>Manjericão (Vila)</h4><p><strong>Especialidade:</strong> Comida caseira e saudável, com opções vegetarianas.</p><p><strong>Faixa de Preço:</strong> $$ (Médio)</p></div>
+                <div class="restaurant-card"><h4>P.F. do Perequê</h4><p><strong>Especialidade:</strong> Diversos quiosques com Prato Feito caprichado e econômico.</p><p><strong>Faixa de Preço:</strong> $ (Baixo)</p></div>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-pencil"></i>Minhas Anotações</summary>
+            <div class="details-content"><textarea id="user-notes" placeholder="Digite suas anotações aqui: restaurantes recomendados, lembretes, contatos..."></textarea></div>
+        </details>
+
+        <details open>
+            <summary><i class="fa-solid fa-person-walking-luggage"></i>Checklist Pessoal</summary>
+            <div class="details-content">
+                <section data-checklist-id="pessoal">
+                    <h3>Documentação e Finanças<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
+                    <h3>Vestuário Estratégico<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
+                    <h3>Kit de Praia & Lazer<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
+                    <h3>Farmácia e Higiene<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
+                    <h3>Eletrônicos<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
+                </section>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-car"></i>Checklist do Veículo</summary>
+            <div class="details-content">
+                <section data-checklist-id="veiculo">
+                    <h3>Itens Essenciais<span class="checklist-counter"></span></h3>
+                    <ul class="checklist"></ul>
+                </section>
+            </div>
+        </details>
+
+        <details>
+            <summary><i class="fa-solid fa-plus"></i>Itens Personalizados</summary>
+            <div class="details-content">
+                <div class="add-item-form"><input type="text" id="new-item-input" placeholder="Adicionar item personalizado..."><button id="add-new-item-btn">+</button></div>
+                <details id="outros-checklist-section">
+                    <summary>Outros<span class="checklist-counter"></span></summary>
+                    <div class="details-content">
+                        <section data-checklist-id="outros">
+                            <ul class="checklist"></ul>
+                        </section>
+                    </div>
+                </details>
+            </div>
+        </details>
+        
+        <div class="footer">
+            <p>Guia gerado com base nas informações fornecidas. Tenha uma ótima viagem!</p>
+        </div>
+    </div>
+    
+    <div id="imageModal" class="modal"><span class="close-modal">&times;</span><img class="modal-content" id="modalImage"><div id="caption"></div></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            
+            // --- LÓGICA DO TEMA ESCURO ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const toggleIcon = themeToggle.querySelector('i');
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                body.classList.add(currentTheme);
+                if (currentTheme === 'dark-mode') toggleIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                let theme = body.classList.contains('dark-mode') ? 'dark-mode' : 'light-mode';
+                toggleIcon.classList.toggle('fa-moon');
+                toggleIcon.classList.toggle('fa-sun');
+                localStorage.setItem('theme', theme);
+            });
+
+            // --- LÓGICA DOS CHECKLISTS ---
+            function createChecklistItem(text, isSingle = false, completed = [false, false]) {
+                const li = document.createElement('li');
+                let boxesHtml = `
+                    <div class="checklist-boxes">
+                        <span class="checklist-box ${completed[0] ? 'completed' : ''}" data-person="you" title="Você"><span class="checklist-box-label">Você</span></span>
+                        <span class="checklist-box ${completed[1] ? 'completed' : ''}" data-person="her" title="Ela"><span class="checklist-box-label">Ela</span></span>
+                    </div>`;
+                if (isSingle) {
+                    boxesHtml = `
+                    <div class="checklist-boxes">
+                        <span class="checklist-box ${completed[0] ? 'completed' : ''}" data-person="you"></span>
+                    </div>`;
+                }
+                li.innerHTML = `<span class="checklist-text">${text}</span>${boxesHtml}`;
+                li.querySelectorAll('.checklist-box').forEach(box => {
+                    box.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        box.classList.toggle('completed');
+                        updateProgressBar(li.closest('section'));
+                        updateChecklistCounter(li.closest('section'));
+                    });
+                });
+                return li;
+            }
+
+            function updateProgressBar(section) {
+                const items = section.querySelectorAll('li');
+                if (items.length === 0) return;
+                
+                let completedCount = 0;
+                items.forEach(item => {
+                    if (item.querySelector('.checklist-box.completed')) completedCount++;
+                });
+
+                const progressBar = section.closest('.details-content').querySelector('.progress-bar');
+                if (progressBar) progressBar.style.width = `${(completedCount / items.length) * 100}%`;
+            }
+            
+            function updateChecklistCounter(section) {
+                 const items = section.querySelectorAll('li');
+                let completedCount = 0;
+                items.forEach(item => {
+                    if (item.querySelector('.checklist-box.completed')) completedCount++;
+                });
+
+                const summary = section.closest('details').querySelector('summary');
+                let counter = summary.querySelector('.checklist-counter');
+                 if (!counter) {
+                    counter = document.createElement('span');
+                    counter.className = 'checklist-counter';
+                    summary.appendChild(counter);
+                }
+                counter.textContent = `(${completedCount}/${items.length})`;
+            }
+
+            const checklistData = {
+                pessoal: { "Documentação e Finanças": ["Documentos Pessoais: RG ou CNH", "Dinheiro em Espécie", "Cartão do Plano de Saúde", "Cópia digital dos documentos"], "Vestuário Estratégico": ["Roupas de Banho (3+ conjuntos)", "Agasalho Leve e um Médio", "Calças (proteção borrachudos)", "Chinelos e Tênis", "Papete ou sapatilha aquática", "Roupa para sair à noite", "Meias (para trilha e noite)"], "Kit de Praia & Lazer": ["Bolsa de Praia e Toalhas", "Snorkel e Capa de Celular", "Cooler/Bolsa Térmica", "Cadeiras de praia e Guarda-sol", "Sacos para lixo e roupa suja", "Livro ou jogo de cartas"], "Farmácia e Higiene": ["Kit Repelente e Pós-Sol", "Kit Primeiros Socorros Completo", "Protetores Solar e Labial", "Remédios de uso contínuo", "Analgésico e antialérgico", "Hidratante e itens de higiene pessoal"], "Eletrônicos": ["Celulares e Carregadores", "Power Bank (Obrigatório)", "Adaptador Veicular", "Fone de ouvido", "Câmera/GoPro e baterias extras"] },
+                veiculo: { "Itens Essenciais": ["Documentação: CNH e CRLV", "Revisão: Pneus calibrados", "Revisão: Nível de fluidos", "Verificar limpadores de para-brisa", "Kit de Segurança Completo", "Verificar validade do extintor", "Kit Conforto (Tag, suporte, etc)", "Flanela para vidros", "Carregador veicular funcional"] }
+            };
+
+            function populateChecklists() {
+                for (const sectionId in checklistData) {
+                    const section = document.querySelector(`section[data-checklist-id="${sectionId}"]`);
+                    section.innerHTML = '';
+                    const isSingle = sectionId === 'veiculo';
+                    for (const category in checklistData[sectionId]) {
+                        const h3 = document.createElement('h3');
+                        h3.innerHTML = `${category}<span class="checklist-counter"></span>`;
+                        const ul = document.createElement('ul');
+                        ul.className = 'checklist';
+                        
+                        const progressBarContainer = document.createElement('div');
+                        progressBarContainer.className = 'progress-bar-container';
+                        progressBarContainer.innerHTML = '<div class="progress-bar"></div>';
+                        
+                        section.appendChild(h3);
+                        section.appendChild(progressBarContainer);
+                        section.appendChild(ul);
+
+                        checklistData[sectionId][category].forEach(itemText => ul.appendChild(createChecklistItem(itemText, isSingle)));
+                        updateProgressBar(section);
+                        updateChecklistCounter(section);
+                    }
+                }
+            }
+            populateChecklists();
+            
+            const newItemInput = document.getElementById('new-item-input');
+            const addNewItemBtn = document.getElementById('add-new-item-btn');
+            const outrosSectionDetails = document.getElementById('outros-checklist-section');
+            const outrosSection = outrosSectionDetails.querySelector('section');
+
+            addNewItemBtn.addEventListener('click', () => {
+                const text = newItemInput.value.trim();
+                if (text) {
+                    const newItem = createChecklistItem(text);
+                    outrosSection.querySelector('.checklist').appendChild(newItem);
+                    newItemInput.value = '';
+                    outrosSectionDetails.style.display = 'block';
+                    if (!outrosSectionDetails.open) outrosSectionDetails.open = true;
+                    updateProgressBar(outrosSection);
+                    updateChecklistCounter(outrosSection);
+                }
+            });
+
+            // --- LÓGICA DA CALCULADORA DE ORÇAMENTO ---
+            const gastoInputs = document.querySelectorAll('.gasto-input');
+            const totalSpentEl = document.getElementById('total-spent');
+            const budgetStatusEl = document.getElementById('budget-status');
+            const totalFixedEl = document.getElementById('total-fixed-costs');
+            const grandTotalEl = document.getElementById('grand-total-cost');
+            const budgetGoal = 600;
+
+            function calculateBudget() {
+                let dailyTotal = 0, fixedTotal = 0;
+                document.querySelectorAll('.daily-cost').forEach(input => { if (input.value) dailyTotal += parseFloat(input.value); });
+                document.querySelectorAll('.fixed-cost').forEach(input => { if (input.value) fixedTotal += parseFloat(input.value); });
+                ['domingo', 'segunda', 'terca'].forEach(day => {
+                    let dayTotal = 0;
+                    document.querySelectorAll(`.gasto-input[data-day="${day}"]`).forEach(input => { if (input.value) dayTotal += parseFloat(input.value); });
+                    document.getElementById(`subtotal-${day}`).textContent = dayTotal.toFixed(2);
+                });
+                totalSpentEl.textContent = dailyTotal.toFixed(2);
+                totalFixedEl.textContent = fixedTotal.toFixed(2);
+                grandTotalEl.textContent = (dailyTotal + fixedTotal).toFixed(2);
+
+                if (dailyTotal === 0) budgetStatusEl.textContent = '';
+                else if (dailyTotal > budgetGoal) {
+                    budgetStatusEl.textContent = `(Meta diária estourada em R$ ${(dailyTotal - budgetGoal).toFixed(2)})`;
+                    budgetStatusEl.style.color = 'var(--danger-color)';
+                } else {
+                    budgetStatusEl.textContent = `(R$ ${(budgetGoal - dailyTotal).toFixed(2)} restantes para a meta)`;
+                    budgetStatusEl.style.color = 'var(--success-color)';
+                }
+            }
+            gastoInputs.forEach(input => input.addEventListener('input', calculateBudget));
+            document.getElementById('save-budget-btn').addEventListener('click', () => {
+                document.getElementById('save-progress').click();
+                showToast('Gastos salvos com sucesso!', 'success');
+            });
+
+            // --- LÓGICA DE SALVAR/CARREGAR/LIMPAR PROGRESSO ---
+            const saveBtn = document.getElementById('save-progress');
+            const loadBtn = document.getElementById('load-progress');
+            const clearBtn = document.getElementById('clear-progress');
+            const activityItems = document.querySelectorAll('.activity-item');
+            const userNotes = document.getElementById('user-notes');
+
+            saveBtn.addEventListener('click', () => {
+                const appData = { checklists: {}, budget: {}, activities: {}, notes: '' };
+                document.querySelectorAll('section[data-checklist-id]').forEach(section => {
+                    const sectionId = section.dataset.checklistId;
+                    appData.checklists[sectionId] = Array.from(section.querySelectorAll('li')).map(item => ({
+                        text: item.querySelector('.checklist-text').textContent,
+                        completed: [
+                            item.querySelector('[data-person="you"]').classList.contains('completed'),
+                            item.querySelector('[data-person="her"]') ? item.querySelector('[data-person="her"]').classList.contains('completed') : false
+                        ]
+                    }));
+                });
+                gastoInputs.forEach(input => appData.budget[input.id] = input.value);
+                activityItems.forEach((item, index) => {
+                    appData.activities[index] = { checked: item.querySelector('input').checked, favorited: item.hasAttribute('data-favorited') };
+                });
+                appData.notes = userNotes.value;
+                localStorage.setItem('ilhabelaAppData', JSON.stringify(appData));
+                showToast('Progresso salvo com sucesso!', 'success');
+            });
+
+            loadBtn.addEventListener('click', () => {
+                const savedData = JSON.parse(localStorage.getItem('ilhabelaAppData'));
+                if (savedData) {
+                    if (savedData.checklists) {
+                        document.querySelectorAll('section[data-checklist-id]').forEach(section => {
+                            const sectionId = section.dataset.checklistId;
+                            const isSingle = sectionId === 'veiculo';
+                            const savedItems = savedData.checklists[sectionId] || [];
+                            const ul = section.querySelector('.checklist');
+                            ul.innerHTML = ''; 
+                            savedItems.forEach(itemData => {
+                                const newItem = createChecklistItem(itemData.text, isSingle, itemData.completed);
+                                ul.appendChild(newItem);
+                            });
+                            updateProgressBar(section);
+                            updateChecklistCounter(section);
+                        });
+                        if (savedData.checklists.outros && savedData.checklists.outros.length > 0) {
+                            outrosSectionDetails.style.display = 'block';
+                            outrosSectionDetails.open = true;
+                        }
+                    }
+                    if (savedData.budget) {
+                        gastoInputs.forEach(input => { input.value = savedData.budget[input.id] || ''; });
+                        calculateBudget();
+                    }
+                    if (savedData.activities) {
+                        activityItems.forEach((item, index) => {
+                            const data = savedData.activities[index];
+                            if (data) {
+                                item.querySelector('input').checked = data.checked;
+                                item.toggleAttribute('data-favorited', data.favorited);
+                                item.querySelector('.favorite-trigger').classList.toggle('favorited', data.favorited);
+                            }
+                        });
+                    }
+                    userNotes.value = savedData.notes || '';
+                    showToast('Progresso carregado!', 'info');
+                } else {
+                    showToast('Nenhum progresso salvo encontrado.', 'error');
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja limpar tudo?')) {
+                    localStorage.removeItem('ilhabelaAppData');
+                    location.reload();
+                }
+            });
+
+            // --- LÓGICA DO ROTEIRO PERSONALIZADO ---
+            const generateRoteiroBtn = document.getElementById('btn-generate-roteiro');
+            const roteiroOutput = document.getElementById('roteiro-output');
+            const filterContainer = document.querySelector('.activity-filters');
+            
+            filterContainer.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') return;
+                const filter = e.target.dataset.filter;
+                filterContainer.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                activityItems.forEach(item => {
+                    const category = item.dataset.category.toLowerCase();
+                    const isFavorited = item.hasAttribute('data-favorited');
+                    let show = false;
+                    if (filter === 'all') show = true;
+                    else if (filter === 'favorite' && isFavorited) show = true;
+                    else if (category.includes(filter.toLowerCase())) show = true;
+                    item.classList.toggle('hidden', !show);
+                });
+            });
+
+            function generateRoteiro(activities) {
+                if (activities.length === 0) {
+                    showToast('Nenhuma atividade selecionada para o roteiro.', 'error');
+                    return;
+                }
+                const roteiro = { domingo: [], segunda: [], terca: [] };
+                activities.forEach((activity, index) => {
+                    if (index % 3 === 0) roteiro.domingo.push(activity);
+                    else if (index % 3 === 1) roteiro.segunda.push(activity);
+                    else roteiro.terca.push(activity);
+                });
+                function getRegion(activity) { const match = activity.match(/\(([^)]+)\)/); return match ? match[1] : 'Outros'; }
+                function generateDayHtml(dayActivities) {
+                    if (dayActivities.length === 0) return '<ul><li>Dia livre!</li></ul>';
+                    const grouped = dayActivities.reduce((acc, activity) => {
+                        const region = getRegion(activity);
+                        if (!acc[region]) acc[region] = [];
+                        acc[region].push(activity.replace(/\s*\([^)]+\)$/, ''));
+                        return acc;
+                    }, {});
+                    let html = '';
+                    for (const region in grouped) {
+                        html += `<h5>${region}</h5><ul>${grouped[region].map(a => `<li>${a}</li>`).join('')}</ul>`;
+                    }
+                    return html;
+                }
+                roteiroOutput.innerHTML = `<div class="roteiro-dia"><h4>Domingo</h4>${generateDayHtml(roteiro.domingo)}</div><div class="roteiro-dia"><h4>Segunda</h4>${generateDayHtml(roteiro.segunda)}</div><div class="roteiro-dia"><h4>Terça</h4>${generateDayHtml(roteiro.terca)}</div>`;
+                document.getElementById('btn-share-roteiro').style.display = 'block';
+                return roteiro;
+            }
+
+            generateRoteiroBtn.addEventListener('click', () => {
+                const selectedActivities = Array.from(activityItems).filter(item => item.querySelector('input').checked).map(item => item.querySelector('input').value);
+                generateRoteiro(selectedActivities);
+            });
+            
+            document.getElementById('btn-suggest-roteiro').addEventListener('click', () => {
+                const today = new Date().getDay(); // 0 = Domingo
+                const weatherToday = document.querySelector('.weather-day').dataset.weather;
+                let suggested = [];
+                if (weatherToday === 'sol') {
+                    suggested = ['Praia do Julião (Sul)', 'Praia do Curral (Sul)', 'Pôr do Sol no Mirante do Piúva (Sul)'];
+                } else if (weatherToday === 'nublado') {
+                    suggested = ['Passeio na Vila (Centro)', 'Cachoeira dos Três Tombos (Sul)', 'Alugar Bike na Ciclovia (Centro)'];
+                } else { // chuva
+                    suggested = ['Passeio na Vila (Centro)', 'Jantar Romântico na Vila (Pago)', 'Visitar lojinhas'];
+                }
+                activityItems.forEach(item => {
+                    const input = item.querySelector('input');
+                    input.checked = suggested.includes(input.value);
+                });
+                generateRoteiro(suggested);
+                showToast('Um roteiro foi sugerido para você baseado no clima!', 'info');
+            });
+            
+            document.getElementById('btn-share-roteiro').addEventListener('click', () => {
+                let text = `*Roteiro para Ilhabela:*\n\n`;
+                const roteiroDias = document.querySelectorAll('.roteiro-dia');
+                roteiroDias.forEach(dia => {
+                    text += `*${dia.querySelector('h4').textContent}*\n`;
+                    dia.querySelectorAll('h5').forEach(region => {
+                        text += `_${region.textContent}_\n`;
+                        region.nextElementSibling.querySelectorAll('li').forEach(li => {
+                            text += `- ${li.textContent}\n`;
+                        });
+                    });
+                    text += `\n`;
+                });
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+
+            // --- LÓGICA DOS FAVORITOS E GALERIA ---
+            activityItems.forEach(item => {
+                const favoriteIcon = item.querySelector('.favorite-trigger');
+                const galleryIcon = item.querySelector('.gallery-trigger');
+                favoriteIcon.addEventListener('click', (e) => { e.stopPropagation(); item.toggleAttribute('data-favorited'); favoriteIcon.classList.toggle('favorited'); });
+                if (galleryIcon) {
+                    galleryIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        document.getElementById('modalImage').src = galleryIcon.dataset.imgUrl;
+                        document.getElementById('caption').textContent = galleryIcon.dataset.caption;
+                        document.getElementById('imageModal').style.display = 'block';
+                    });
+                }
+            });
+            const modal = document.getElementById('imageModal');
+            modal.querySelector('.close-modal').onclick = () => modal.style.display = "none";
+            window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; }
+            
+            // --- LÓGICA DE EXPORTAR PDF ---
+            const exportPdfBtn = document.getElementById('export-pdf');
+            const { jsPDF } = window.jspdf;
+            exportPdfBtn.addEventListener('click', () => {
+                const pdfContainer = document.createElement('div');
+                const budgetClone = document.getElementById('budget-calculator').cloneNode(true);
+                const itineraryClone = document.getElementById('roteiro-container').cloneNode(true);
+                pdfContainer.append(budgetClone, itineraryClone);
+                pdfContainer.style.width = '900px'; pdfContainer.style.padding = '20px'; pdfContainer.style.backgroundColor = 'white'; pdfContainer.style.color = 'black';
+                document.body.appendChild(pdfContainer);
+                showToast("Preparando o PDF...", 'info');
+                html2canvas(pdfContainer, { scale: 2 }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save("resumo-viagem-ilhabela.pdf");
+                    document.body.removeChild(pdfContainer);
+                });
+            });
+
+            // --- LÓGICA DE TOAST NOTIFICATIONS ---
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 5000);
+            }
+
+            // Registrar o Service Worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW Registrado!', reg), err => console.log('SW Falhou:', err));
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
+
