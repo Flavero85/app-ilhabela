@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guia PWA de Viagem: Ilhabela</title>
+    <title>Flavio e Marcella em Ilhabela</title>
     <!-- 
-        Código gerado em: 2025-10-07 13:23 
+        Código gerado em: 2025-10-07 14:05 
         Nota: Para testar as funcionalidades PWA (instalação, offline), 
         este arquivo precisa ser servido por um servidor local (ex: Live Server no VS Code), 
         não aberto diretamente do sistema de arquivos (file://).
@@ -54,15 +54,15 @@
         .dark-mode .borrachudo-dica { background-color: #574b1e; }
 
         /* --- CONTROLES GLOBAIS --- */
-        .global-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--light-gray); border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .control-group { display: flex; flex-wrap: wrap; gap: 10px; flex-grow: 1; }
-        .global-controls button, .theme-toggle, .btn-small { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.2s, transform 0.2s; flex: 1; min-width: 40px; }
+        .global-controls { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--light-gray); border-radius: 8px; margin-bottom: 20px; flex-wrap: nowrap; gap: 10px; overflow-x: auto; }
+        .control-group { display: flex; flex-wrap: nowrap; gap: 10px; }
+        .global-controls button, .theme-toggle, .btn-small { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.2s, transform 0.2s; flex-shrink: 0; }
         .btn-save { background-color: var(--success-color); color: white; }
         .btn-load { background-color: var(--primary-color); color: white; }
         .btn-clear { background-color: var(--danger-color); color: white; }
         .btn-pdf { background-color: #6f42c1; color: white; }
         .global-controls button:hover { transform: translateY(-2px); }
-        .theme-toggle { background: none; font-size: 1.5em; color: var(--primary-color); flex: 0; }
+        .theme-toggle { background: none; font-size: 1.5em; color: var(--primary-color); }
         
         /* --- SEÇÕES RETRÁTEIS --- */
         details { background: var(--light-gray); border-radius: 8px; margin-bottom: 15px; border: 1px solid #ddd; }
@@ -92,8 +92,8 @@
         .budget-section { padding: 15px; border: 1px solid var(--secondary-color); border-radius: 8px; margin-bottom: 20px; }
         .budget-day { margin-bottom: 20px; border-top: 1px solid #ccc; padding-top: 15px; }
         .budget-day h5, .budget-section h4 { margin: 0 0 10px 0; color: var(--secondary-color); }
-        .budget-input-group { display: flex; flex-wrap: wrap; gap: 10px; }
-        .budget-input-group > div { flex: 1; min-width: 120px; }
+        .budget-input-group { display: flex; flex-wrap: nowrap; gap: 10px; overflow-x: auto; }
+        .budget-input-group > div { flex: 1; min-width: 100px; }
         .budget-input-group label { font-weight: normal; font-size: 0.9em; }
         .budget-input-group input { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 5px; border: 1px solid #ccc; background-color: var(--card-bg); color: var(--text-color); }
         .budget-subtotal { text-align: right; font-weight: bold; margin-top: 10px; }
@@ -130,13 +130,14 @@
         #map-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; }
         .map-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
         .map-link-btn { background-color: var(--primary-color); color: white; text-decoration: none; padding: 8px 12px; border-radius: 5px; font-size: 0.9em; }
-        .weather-widget { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; }
-        .weather-day { background-color: var(--card-bg); padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--light-gray); }
-        .weather-day i { font-size: 2.5em; color: var(--warning-color); margin-bottom: 10px; }
+        .weather-widget { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .weather-day { background-color: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--light-gray); }
+        .weather-day-summary { display: flex; justify-content: space-between; align-items: center; }
+        .weather-day i { font-size: 2.5em; color: var(--warning-color); }
         .hourly-forecast { display: none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }
         .hourly-forecast p { margin: 5px 0; font-size: 0.9em; }
         .weather-day.expanded .hourly-forecast { display: block; }
-        .expand-weather { cursor: pointer; color: var(--secondary-color); font-size: 0.8em; margin-top: 10px; }
+        .expand-weather { cursor: pointer; color: var(--secondary-color); font-size: 0.8em; margin-top: 10px; text-align: center; }
         #user-notes { width: 100%; height: 150px; box-sizing: border-box; padding: 10px; border-radius: 5px; border: 1px solid #ccc; background-color: var(--card-bg); color: var(--text-color); margin-top: 10px; }
         .balsa-status { text-align: center; }
         .btn-balsa { display: inline-block; padding: 12px 25px; background-color: var(--primary-color); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px; }
@@ -173,7 +174,7 @@
             <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema"><i class="fas fa-moon"></i></button>
         </div>
 
-        <h1>Guia Premium: Ilhabela</h1>
+        <h1>Flavio e Marcella em Ilhabela</h1>
 
         <!-- SEÇÕES PRINCIPAIS -->
         <details>
@@ -205,9 +206,33 @@
         <details>
             <summary><i class="fa-solid fa-cloud-sun-rain"></i>Previsão do Tempo (Simulado)</summary>
             <div class="details-content weather-widget">
-                <div class="weather-day" data-weather="sol"><h4>Domingo</h4><i class="fas fa-sun"></i><p class="weather-temp">28°C / 21°C</p><p>Sol com poucas nuvens</p><div class="expand-weather">Ver detalhes <span>&darr;</span></div><div class="hourly-forecast"><p>09:00: 22°C</p><p>12:00: 26°C</p><p>15:00: 28°C</p><p>18:00: 25°C</p></div></div>
-                <div class="weather-day" data-weather="nublado"><h4>Segunda</h4><i class="fas fa-cloud-sun"></i><p class="weather-temp">27°C / 22°C</p><p>Parcialmente Nublado</p><div class="expand-weather">Ver detalhes <span>&darr;</span></div><div class="hourly-forecast"><p>09:00: 23°C</p><p>12:00: 27°C</p><p>15:00: 26°C</p><p>18:00: 24°C</p></div></div>
-                <div class="weather-day" data-weather="chuva"><h4>Terça</h4><i class="fas fa-cloud-showers-heavy"></i><p class="weather-temp">25°C / 20°C</p><p>Pancadas de chuva</p><div class="expand-weather">Ver detalhes <span>&darr;</span></div><div class="hourly-forecast"><p>09:00: 21°C</p><p>12:00: 24°C</p><p>15:00: 22°C</p><p>18:00: 21°C</p></div></div>
+                <div class="weather-day" data-weather="sol">
+                    <div class="weather-day-summary">
+                        <div><h4>Domingo</h4><p>Sol com poucas nuvens</p></div>
+                        <i class="fas fa-sun"></i>
+                        <p class="weather-temp">28°C / 21°C</p>
+                    </div>
+                    <div class="expand-weather">Ver detalhes <span>&darr;</span></div>
+                    <div class="hourly-forecast"><p>09:00: 22°C</p><p>12:00: 26°C</p><p>15:00: 28°C</p><p>18:00: 25°C</p></div>
+                </div>
+                <div class="weather-day" data-weather="nublado">
+                    <div class="weather-day-summary">
+                        <div><h4>Segunda</h4><p>Parcialmente Nublado</p></div>
+                        <i class="fas fa-cloud-sun"></i>
+                        <p class="weather-temp">27°C / 22°C</p>
+                    </div>
+                    <div class="expand-weather">Ver detalhes <span>&darr;</span></div>
+                    <div class="hourly-forecast"><p>09:00: 23°C</p><p>12:00: 27°C</p><p>15:00: 26°C</p><p>18:00: 24°C</p></div>
+                </div>
+                <div class="weather-day" data-weather="chuva">
+                    <div class="weather-day-summary">
+                        <div><h4>Terça</h4><p>Pancadas de chuva</p></div>
+                        <i class="fas fa-cloud-showers-heavy"></i>
+                        <p class="weather-temp">25°C / 20°C</p>
+                    </div>
+                    <div class="expand-weather">Ver detalhes <span>&darr;</span></div>
+                    <div class="hourly-forecast"><p>09:00: 21°C</p><p>12:00: 24°C</p><p>15:00: 22°C</p><p>18:00: 21°C</p></div>
+                </div>
             </div>
         </details>
         
@@ -318,11 +343,16 @@
             <summary><i class="fa-solid fa-person-walking-luggage"></i>Checklist Pessoal</summary>
             <div class="details-content">
                 <section data-checklist-id="pessoal">
-                    <h3>Documentação e Finanças<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
-                    <h3>Vestuário Estratégico<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
-                    <h3>Kit de Praia & Lazer<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
-                    <h3>Farmácia e Higiene<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
-                    <h3>Eletrônicos<span class="checklist-counter"></span></h3><ul class="checklist"></ul>
+                    <h3>Documentação e Finanças<span class="checklist-counter"></span></h3>
+                    <ul class="checklist"></ul>
+                    <h3>Vestuário Estratégico<span class="checklist-counter"></span></h3>
+                    <ul class="checklist"></ul>
+                    <h3>Kit de Praia & Lazer<span class="checklist-counter"></span></h3>
+                    <ul class="checklist"></ul>
+                    <h3>Farmácia e Higiene<span class="checklist-counter"></span></h3>
+                    <ul class="checklist"></ul>
+                    <h3>Eletrônicos<span class="checklist-counter"></span></h3>
+                    <ul class="checklist"></ul>
                 </section>
             </div>
         </details>
@@ -414,18 +444,24 @@
                 
                 let completedCount = 0;
                 items.forEach(item => {
-                    if (item.querySelector('.checklist-box.completed')) completedCount++;
+                    if (item.querySelector('.checklist-box.completed')) {
+                        completedCount++;
+                    }
                 });
 
                 const progressBar = section.closest('.details-content').querySelector('.progress-bar');
-                if (progressBar) progressBar.style.width = `${(completedCount / items.length) * 100}%`;
+                if (progressBar) {
+                     progressBar.style.width = `${(completedCount / items.length) * 100}%`;
+                }
             }
             
             function updateChecklistCounter(section) {
                  const items = section.querySelectorAll('li');
                 let completedCount = 0;
                 items.forEach(item => {
-                    if (item.querySelector('.checklist-box.completed')) completedCount++;
+                    if (item.querySelector('.checklist-box.completed')) {
+                        completedCount++;
+                    }
                 });
 
                 const summary = section.closest('details').querySelector('summary');
@@ -602,7 +638,7 @@
                 }
             });
 
-            // --- LÓGICA DO ROTEIRO PERSONALIZADO ---
+            // --- LÓGICA DO ROTEIRO PERSONALIZADO E FILTROS ---
             const generateRoteiroBtn = document.getElementById('btn-generate-roteiro');
             const roteiroOutput = document.getElementById('roteiro-output');
             const filterContainer = document.querySelector('.activity-filters');
@@ -668,7 +704,7 @@
                 } else if (weatherToday === 'nublado') {
                     suggested = ['Passeio na Vila (Centro)', 'Cachoeira dos Três Tombos (Sul)', 'Alugar Bike na Ciclovia (Centro)'];
                 } else { // chuva
-                    suggested = ['Passeio na Vila (Centro)', 'Jantar Romântico na Vila (Pago)', 'Visitar lojinhas'];
+                    suggested = ['Passeio na Vila (Centro)', 'Jantar Romântico na Vila (Pago)', 'Visitar lojinhas e cafés']; // Assuming this is a valid activity now
                 }
                 activityItems.forEach(item => {
                     const input = item.querySelector('input');
