@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- LÓGICA DO CLIMA (API REAL) ---
-    const API_KEY = 'a0042c4e671a43629c2e44df91623ee6';
+    const API_KEY = 'c4a8f46840ca4bafa091a3fd7226ddfb';
     const LAT = '-23.78';
     const LON = '-45.36';
     const weatherWidget = document.getElementById('weather-widget');
