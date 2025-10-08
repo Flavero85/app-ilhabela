@@ -1,4 +1,4 @@
-/* --- Código gerado em: 2025-10-08 10:18 --- */
+/* --- Código gerado em: 2025-10-08 10:32 --- */
 
 document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
@@ -84,26 +84,14 @@ document.addEventListener('DOMContentLoaded', () => {
             logbook: {} // Adicionado
         };
         
-        // Salvar checklists
         document.querySelectorAll('section[data-checklist-id]').forEach(section => { const sectionId = section.dataset.checklistId; appData.checklists[sectionId] = Array.from(section.querySelectorAll('li')).map(item => ({ text: item.querySelector('.checklist-text').textContent, isSingle: sectionId === 'veiculo', completed: [item.querySelector('[data-person="you"]').classList.contains('completed'), item.querySelector('[data-person="her"]') ? item.querySelector('[data-person="her"]').classList.contains('completed') : null].filter(c => c !== null) })); });
-        
-        // Salvar orçamento
         document.querySelectorAll('.gasto-input').forEach(input => appData.budget[input.id] = input.value);
-        
-        // Salvar atividades
         document.querySelectorAll('.activity-item').forEach(item => { const activityId = item.dataset.activityId; if (activityId) { appData.activities[activityId] = { checked: item.querySelector('input').checked, favorited: item.querySelector('.favorite-trigger').classList.contains('favorited') }; } });
-
-        // Salvar anotações
         appData.notes = document.getElementById('user-notes').value;
-
-        // Salvar diário de bordo
         appData.logbook.domingo = document.getElementById('log-domingo').value;
         appData.logbook.segunda = document.getElementById('log-segunda').value;
         appData.logbook.terca = document.getElementById('log-terca').value;
-
-        // Salvar imagens
         for (let i = 0; i < localStorage.length; i++) { const key = localStorage.key(i); if (key.startsWith('uploaded_image_')) { appData.uploadedImages[key] = localStorage.getItem(key); } }
-
         localStorage.setItem('ilhabelaAppData', JSON.stringify(appData));
         showToast('Progresso salvo com sucesso!', 'success');
     });
@@ -111,37 +99,58 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadProgress() {
         const savedData = JSON.parse(localStorage.getItem('ilhabelaAppData'));
         if (!savedData) { populateChecklists(); showToast('Nenhum progresso salvo encontrado. Começando um novo guia!', 'info'); return; }
-        
-        // Carregar imagens, checklists, orçamento, atividades...
         if (savedData.uploadedImages) { for (const key in savedData.uploadedImages) { localStorage.setItem(key, savedData.uploadedImages[key]); } updateUploadedIcons(); }
         if (savedData.checklists) { ['pessoal', 'veiculo', 'outros'].forEach(id => { const section = document.querySelector(`section[data-checklist-id="${id}"]`); const savedItems = savedData.checklists[id] || []; const ul = section.querySelector('.checklist'); if(ul) ul.innerHTML = ''; savedItems.forEach(itemData => { const newItem = createChecklistItem(itemData.text, itemData.isSingle, itemData.completed); ul.appendChild(newItem); }); if (id === 'outros' && savedItems.length > 0) { section.style.display = 'block'; } updateChecklistCounter(section); }); } else { populateChecklists(); }
         if (savedData.budget) { document.querySelectorAll('.gasto-input').forEach(input => { input.value = savedData.budget[input.id] || ''; }); calculateBudget(); }
         if (savedData.activities) { document.querySelectorAll('.activity-item').forEach(item => { const activityId = item.dataset.activityId; const data = savedData.activities[activityId]; if (data) { item.querySelector('input').checked = data.checked; item.querySelector('.favorite-trigger').classList.toggle('favorited', data.favorited); } }); }
-        
-        // Carregar anotações
         document.getElementById('user-notes').value = savedData.notes || '';
-        
-        // Carregar diário de bordo
         if (savedData.logbook) {
             document.getElementById('log-domingo').value = savedData.logbook.domingo || '';
             document.getElementById('log-segunda').value = savedData.logbook.segunda || '';
             document.getElementById('log-terca').value = savedData.logbook.terca || '';
         }
-        
         showToast('Progresso carregado!', 'info');
     }
     
     clearBtn.addEventListener('click', () => { if (confirm('Tem certeza que deseja limpar tudo?')) { const theme = localStorage.getItem('theme'); localStorage.clear(); if (theme) localStorage.setItem('theme', theme); location.reload(); } });
     
-    // --- LÓGICAS ANTIGAS (sem alterações, exceto remoções) ---
     function calculateBudget() { let dailyTotal = 0, fixedTotal = 0; document.querySelectorAll('.daily-cost').forEach(input => { if (input.value) dailyTotal += parseFloat(input.value); }); document.querySelectorAll('.fixed-cost').forEach(input => { if (input.value) fixedTotal += parseFloat(input.value); }); ['domingo', 'segunda', 'terca', 'quarta'].forEach(day => { let dayTotal = 0; document.querySelectorAll(`.gasto-input[data-day="${day}"]`).forEach(input => { if (input.value) dayTotal += parseFloat(input.value); }); const subtotalEl = document.getElementById(`subtotal-${day}`); if (subtotalEl) subtotalEl.textContent = dayTotal.toFixed(2); }); const totalSpentEl = document.getElementById('total-spent'); const budgetStatusEl = document.getElementById('budget-status'); totalSpentEl.textContent = dailyTotal.toFixed(2); document.getElementById('total-fixed-costs').textContent = fixedTotal.toFixed(2); document.getElementById('grand-total-cost').textContent = (dailyTotal + fixedTotal).toFixed(2); const budgetGoal = 800; if (dailyTotal === 0) budgetStatusEl.textContent = ''; else if (dailyTotal > budgetGoal) { budgetStatusEl.textContent = `(Meta estourada em R$ ${(dailyTotal - budgetGoal).toFixed(2)})`; budgetStatusEl.style.color = 'var(--danger-color)'; } else { budgetStatusEl.textContent = `(R$ ${(budgetGoal - dailyTotal).toFixed(2)} restantes para a meta)`; budgetStatusEl.style.color = 'var(--success-color)'; } }
     document.querySelectorAll('.gasto-input').forEach(input => input.addEventListener('input', calculateBudget));
     const generateRoteiroBtn = document.getElementById('btn-generate-roteiro'); const roteiroOutput = document.getElementById('roteiro-output'); const filterContainer = document.querySelector('.activity-filters');
     filterContainer.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') return; const filter = e.target.dataset.filter; filterContainer.querySelector('.active').classList.remove('active'); e.target.classList.add('active'); document.querySelectorAll('.activity-item').forEach(item => { const category = item.dataset.category.toLowerCase(); const isFavorited = item.querySelector('.favorite-trigger').classList.contains('favorited'); let show = false; if (filter === 'all') show = true; else if (filter === 'favorite' && isFavorited) show = true; else if (category.includes(filter.toLowerCase())) show = true; item.classList.toggle('hidden', !show); }); });
     function generateRoteiro(activities) { if (activities.length === 0) { showToast('Nenhuma atividade selecionada.', 'error'); return null; } const roteiro = { domingo: [], segunda: [], terca: [] }; const days = ['domingo', 'segunda', 'terca']; activities.forEach((activity, index) => { roteiro[days[index % 3]].push(activity); }); function getRegion(activity) { const match = activity.match(/\(([^)]+)\)/); return match ? match[1] : 'Outros'; } function generateDayHtml(dayActivities) { if (dayActivities.length === 0) return '<ul><li>Dia livre.</li></ul>'; const grouped = dayActivities.reduce((acc, activity) => { const region = getRegion(activity); if (!acc[region]) acc[region] = []; acc[region].push(activity.replace(/\s*\([^)]+\)$/, '')); return acc; }, {}); let html = ''; for (const region in grouped) { html += `<h5>${region}</h5><ul>${grouped[region].map(a => `<li>${a}</li>`).join('')}</ul>`; } return html; } roteiroOutput.innerHTML = `<div class="roteiro-dia"><h4>Domingo</h4>${generateDayHtml(roteiro.domingo)}</div><div class="roteiro-dia"><h4>Segunda</h4>${generateDayHtml(roteiro.segunda)}</div><div class="roteiro-dia"><h4>Terça</h4>${generateDayHtml(roteiro.terca)}</div>`; document.getElementById('btn-share-roteiro').style.display = 'block'; }
     generateRoteiroBtn.addEventListener('click', () => { const selectedActivities = Array.from(document.querySelectorAll('.activity-item input:checked')).map(input => input.value); generateRoteiro(selectedActivities); });
-    document.getElementById('btn-suggest-roteiro').addEventListener('click', () => { const suggested = ['Praia do Julião (Sul)', 'Cachoeira dos Três Tombos (Sul)', 'Passeio na Vila (Centro)', 'Mirante do Coração (Sul)', 'Mergulho Ilha das Cabras (Sul)', 'Pôr do Sol no Mirante do Piúva']; document.querySelectorAll('.activity-item input').forEach(input => { input.checked = suggested.includes(input.value); }); generateRoteiro(suggested); showToast('Um roteiro de 3 dias foi sugerido!', 'info'); });
-    document.getElementById('btn-share-roteiro').addEventListener('click', () => { let text = `*Nosso Roteiro para Ilhabela:*\n\n`; const roteiroDias = document.querySelectorAll('.roteiro-dia'); if (roteiroDias.length === 0 || roteiroOutput.querySelector('.dica')) { showToast('Gere um roteiro antes de compartilhar!', 'error'); return; } roteiroDias.forEach(dia => { text += `*${dia.querySelector('h4').textContent}*\n`; dia.querySelectorAll('h5').forEach(region => { text += `_${region.textContent}_\n`; region.nextElementSibling.querySelectorAll('li').forEach(li => { text += `- ${li.textContent}\n`; }); }); text += `\n`; }); const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`; window.open(whatsappUrl, '_blank'); });
+    
+    // ### BOTÃO DE SUGESTÃO COM 15 OPÇÕES (5 por dia) ###
+    document.getElementById('btn-suggest-roteiro').addEventListener('click', () => {
+        const suggested = [
+            // Dia 1 (Domingo)
+            'Praia do Julião (Sul)',
+            'Cachoeira dos Três Tombos (Sul)',
+            'Mergulho Ilha das Cabras (Sul)',
+            'Mirante do Coração (Sul)',
+            'Pôr do Sol no Mirante do Piúva (Sul)',
+            // Dia 2 (Segunda)
+            'Praia de Santa Tereza (Centro)',
+            'Passeio na Vila (Centro)',
+            'Igreja Matriz (Vila)',
+            'Antigo Fórum e Cadeia (Vila)',
+            'Cachoeira da Toca (Centro)',
+            // Dia 3 (Terça)
+            'Praia da Pacuíba (Norte)',
+            'Trilha da Água Branca (Parque)',
+            'Cachoeira do Paquetá (Sul)',
+            'Praia do Curral (Sul)',
+            'Mirante do Barreiro (Sul)',
+        ];
+        document.querySelectorAll('.activity-item input').forEach(input => {
+             input.checked = suggested.includes(input.value);
+        });
+        generateRoteiro(suggested);
+        showToast('Um roteiro completo de 3 dias foi sugerido para você!', 'info');
+    });
+
+    document.getElementById('btn-share-roteiro').addEventListener('click', () => { let text = `*Nosso Roteiro para Ilhabela:*\n\n`; const roteiroDias = document.querySelectorAll('.roteiro-dia'); if (roteiroDias.length === 0 || roteiroOutput.querySelector('.dica')) { showToast('Gere um roteiro antes de compartilhar!', 'error'); return; } roteiroDias.forEach(dia => { text += `*${dia.querySelector('h4').textContent}*\n`; dia.querySelectorAll('h5').forEach(region => { text += `_${region.textContent}_\n`; region.nextElementSibling.querySelectorAll('li').forEach(li => { text += `- ${li.textContent}\n`; }); }); text += `\n`; }); const whatsappUrl = `https.api.whatsapp.com/send?text=${encodeURIComponent(text)}`; window.open(whatsappUrl, '_blank'); });
     const modal = document.getElementById('imageModal'); function handleActivityIconClick(e) { const icon = e.target; const item = icon.closest('.activity-item'); const activityId = item.dataset.activityId; const activityName = item.querySelector('.activity-label').textContent.trim(); const storageKey = `uploaded_image_${activityId}`; if (icon.classList.contains('favorite-trigger')) { icon.classList.toggle('favorited'); } else if (icon.classList.contains('image-upload-trigger')) { const savedImage = localStorage.getItem(storageKey); if (savedImage) { document.getElementById('modalImage').src = savedImage; document.getElementById('caption').textContent = activityName; modal.style.display = 'block'; } else { const fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.onchange = (event) => { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { localStorage.setItem(storageKey, e.target.result); icon.classList.add('uploaded'); showToast(`Foto de "${activityName}" salva!`, 'success'); }; reader.readAsDataURL(file); }; fileInput.click(); } } }
     document.querySelector('#activity-selector').addEventListener('click', (e) => { if (e.target.matches('.favorite-trigger, .image-upload-trigger')) { handleActivityIconClick(e); } });
     function updateUploadedIcons() { document.querySelectorAll('.image-upload-trigger').forEach(icon => { const activityId = icon.closest('.activity-item').dataset.activityId; if (localStorage.getItem(`uploaded_image_${activityId}`)) { icon.classList.add('uploaded'); } }); }

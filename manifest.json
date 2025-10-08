@@ -9,12 +9,12 @@
     "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "https://placehold.co/192x192/0077b6/FFF?text=Guia",
+            "src": "192x192.png",
             "type": "image/png",
             "sizes": "192x192"
         },
         {
-            "src": "https://placehold.co/512x512/0077b6/FFF?text=Guia",
+            "src": "512x512.png",
             "type": "image/png",
             "sizes": "512x512"
         }
