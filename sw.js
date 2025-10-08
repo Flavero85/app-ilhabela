@@ -1,15 +1,12 @@
-// Código gerado em: 2025-10-07 15:36
+// Código gerado em: 2025-10-08 09:46
 
-const CACHE_NAME = 'guia-ilhabela-cache-v4'; // Versão incrementada para forçar a atualização
+const CACHE_NAME = 'guia-ilhabela-cache-v5'; // Versão incrementada para forçar a atualização
 const urlsToCache = [
     './index.html',
     './style.css',
     './app.js',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
-    'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap',
-    'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
-    // Adicione aqui os ícones se eles forem locais, ex: './icons/icon-192.png'
+    'https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'
 ];
 
 // Instala o Service Worker e armazena os assets no cache
