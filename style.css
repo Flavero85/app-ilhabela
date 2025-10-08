@@ -1,4 +1,4 @@
-/* --- Código gerado em: 2025-10-08 09:46 --- */
+/* --- Código gerado em: 2025-10-08 10:18 --- */
 
 /* --- GERAL E ANIMAÇÕES --- */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -101,7 +101,7 @@ summary::-webkit-details-marker { display: none; }
 .quick-guide h4 { border-bottom: 2px solid var(--secondary-color); padding-bottom: 5px; margin-bottom: 10px; }
 .quick-guide ul { list-style: none; padding-left: 0; }
 .quick-guide ul li { padding: 5px 0; }
-.quick-guide p { margin: 5px 0; }
+.quick-guide p { margin: 5px 0 10px 0; }
 .quick-guide i { margin-right: 8px; color: var(--secondary-color); }
 
 /* --- CHECKLISTS --- */
@@ -113,6 +113,8 @@ summary::-webkit-details-marker { display: none; }
     animation: slideInUp 0.6s; transition: transform 0.2s; 
 }
 .restaurant-card:hover { transform: translateX(5px); }
+.restaurant-card b { color: var(--secondary-color); }
+
 
 /* --- ROTEIRO --- */
 .activity-item { animation: slideInUp 0.5s; }
